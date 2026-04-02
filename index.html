@@ -8,9 +8,12 @@
         body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         
         .header { background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
         .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .controls select, .controls input { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; outline: none; }
         
+        #syncStatus { font-size: 13px; font-weight: bold; padding: 5px 12px; border-radius: 20px; background: #f3f4f6; transition: all 0.3s; white-space: nowrap; }
+
         .btn-reset-today { background: #f59e0b; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-reset-today:hover { background: #d97706; }
         .btn-reset-all { background: #ef4444; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
@@ -20,118 +23,28 @@
         .tab-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; background: #e0e7ff; color: #4f46e5; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { background: #4f46e5; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 
-        /* ─── 좌석배치도 상단 바 ─── */
-        .ocr-section {
-            background: white;
-            padding: 14px 18px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+        .ocr-section { background: white; padding: 14px 18px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .ocr-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .ocr-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-        /* ─── 배치 설정 인라인 UI ─── */
-        .layout-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f0f4ff;
-            border: 1.5px solid #c7d2fe;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #4f46e5;
-        }
-        .layout-box input[type="number"] {
-            width: 52px;
-            padding: 5px 8px;
-            font-size: 15px;
-            border-radius: 7px;
-            border: 1.5px solid #a5b4fc;
-            text-align: center;
-            outline: none;
-            font-weight: bold;
-            color: #1e1b4b;
-        }
-        .btn-layout-apply {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 7px 13px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .layout-box { display: flex; align-items: center; gap: 8px; background: #f0f4ff; border: 1.5px solid #c7d2fe; padding: 8px 14px; border-radius: 10px; font-size: 14px; font-weight: bold; color: #4f46e5; }
+        .layout-box input[type="number"] { width: 52px; padding: 5px 8px; font-size: 15px; border-radius: 7px; border: 1.5px solid #a5b4fc; text-align: center; outline: none; font-weight: bold; color: #1e1b4b; }
+        .btn-layout-apply { background: #4f46e5; color: white; border: none; padding: 7px 13px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
         .btn-layout-apply:hover { background: #3730a3; }
 
         .btn-upload { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: bold; }
         .btn-upload:hover { background: #059669; }
 
-        /* ─── 좌석 그리드: 열 수는 JS로 인라인 스타일 주입 ─── */
-        .grid {
-            display: grid;
-            gap: 12px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .seat {
-            background: white;
-            border-radius: 12px;
-            padding: 18px 8px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
-            min-height: 55px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+        .grid { display: grid; gap: 12px; max-width: 1100px; margin: 0 auto; }
+        .seat { background: white; border-radius: 12px; padding: 18px 8px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; min-height: 55px; display: flex; flex-direction: column; justify-content: center; }
         .seat:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.14); }
         .seat:active { transform: scale(0.95); }
         .name { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 4px; }
         .scores { font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 6px; min-height: 18px; }
-
-        /* 짝꿍 구분 시각 힌트: 짝수 열 배경 살짝 다름 */
         .seat.pair-shade { background: #f0f7ff; }
+        .desk-front { text-align: center; background: #e0e7ff; padding: 10px; border-radius: 10px; margin-top: 25px; margin-bottom: 10px; font-weight: bold; color: #4f46e5; font-size: 18px; max-width: 1100px; margin-left: auto; margin-right: auto; }
+        .layout-badge { display: inline-flex; align-items: center; gap: 5px; background: #e0e7ff; color: #4f46e5; font-size: 13px; font-weight: bold; padding: 5px 12px; border-radius: 20px; }
 
-        .desk-front {
-            text-align: center;
-            background: #e0e7ff;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 25px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #4f46e5;
-            font-size: 18px;
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* ─── 배치 현황 뱃지 ─── */
-        .layout-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #e0e7ff;
-            color: #4f46e5;
-            font-size: 13px;
-            font-weight: bold;
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-
-        /* 명렬표 */
         #rosterTab { display: none; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
         .filter-section { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 10px; flex-wrap: wrap; }
         .filter-controls { display: flex; align-items: center; gap: 10px; }
@@ -145,106 +58,32 @@
         .col-notes { text-align: left !important; min-width: 250px; line-height: 1.5; }
         tr:hover { background-color: #f9fafb; }
 
-        /* ─── 기간별 좌석 현황 ─── */
         #summaryTab { display: none; }
-
-        .summary-filter-bar {
-            background: white;
-            padding: 18px 22px;
-            border-radius: 14px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+        .summary-filter-bar { background: white; padding: 18px 22px; border-radius: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         .summary-filter-bar strong { font-size: 15px; color: #374151; white-space: nowrap; }
-
         .period-btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .period-btn {
-            padding: 9px 16px;
-            border-radius: 8px;
-            border: 2px solid #c7d2fe;
-            background: #eef2ff;
-            color: #4f46e5;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .period-btn { padding: 9px 16px; border-radius: 8px; border: 2px solid #c7d2fe; background: #eef2ff; color: #4f46e5; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .period-btn:hover { background: #c7d2fe; }
         .period-btn.selected { background: #4f46e5; color: white; border-color: #4f46e5; }
-
-        .custom-date-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 8px 14px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-        .custom-date-area input[type="date"] {
-            padding: 8px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-        .btn-summary-search {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .custom-date-area { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 14px; background: #f9fafb; border-radius: 10px; border: 1px solid #e5e7eb; }
+        .custom-date-area input[type="date"] { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn-summary-search { background: #4f46e5; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-summary-search:hover { background: #3730a3; }
 
-        /* 요약 그리드: 열 수는 JS로 인라인 */
-        .summary-grid {
-            display: grid;
-            gap: 14px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .summary-seat {
-            background: white;
-            border-radius: 14px;
-            padding: 14px 10px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5px;
-            border-top: 4px solid transparent;
-        }
-        .summary-seat.has-heart    { border-top-color: #f87171; }
-        .summary-seat.has-warning  { border-top-color: #fb923c; }
-        .summary-seat.has-both     { border-top: 4px solid; border-image: linear-gradient(90deg,#f87171,#fb923c) 1; }
-        .summary-seat .s-name      { font-size: 17px; font-weight: bold; color: #1f2937; }
-        .summary-score-row         { display: flex; justify-content: center; gap: 8px; font-size: 13px; font-weight: bold; }
-        .s-heart   { color: #c62828; }
+        .summary-grid { display: grid; gap: 14px; max-width: 1100px; margin: 0 auto; }
+        .summary-seat { background: white; border-radius: 14px; padding: 14px 10px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.08); min-height: 80px; display: flex; flex-direction: column; justify-content: center; gap: 5px; border-top: 4px solid transparent; }
+        .summary-seat.has-heart { border-top-color: #f87171; }
+        .summary-seat.has-warning { border-top-color: #fb923c; }
+        .summary-seat.has-both { border-top: 4px solid; border-image: linear-gradient(90deg,#f87171,#fb923c) 1; }
+        .summary-seat .s-name { font-size: 17px; font-weight: bold; color: #1f2937; }
+        .summary-score-row { display: flex; justify-content: center; gap: 8px; font-size: 13px; font-weight: bold; }
+        .s-heart { color: #c62828; }
         .s-warning { color: #ef6c00; }
         .s-net { font-size: 12px; color: #6b7280; margin-top: 1px; }
         .s-net.positive { color: #10b981; }
         .s-net.negative { color: #ef4444; }
+        .period-label { text-align: center; font-size: 15px; color: #6b7280; margin-bottom: 16px; font-weight: bold; }
 
-        .period-label {
-            text-align: center;
-            font-size: 15px;
-            color: #6b7280;
-            margin-bottom: 16px;
-            font-weight: bold;
-        }
-
-        /* ─── 팝업 모달 ─── */
         #actionModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 340px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-content h3 { margin-top: 0; margin-bottom: 10px; font-size: 24px; color: #111; }
@@ -261,17 +100,26 @@
         .btn-save-note { width: 100%; background: #4b5563; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 5px; }
         .btn-save-note:hover { background: #374151; }
 
-        /* 짝꿍 분단 구분선 */
-        .pair-divider {
-            border-left: 2px dashed #c7d2fe;
-            height: auto;
-        }
+        /* 로딩 오버레이 */
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; gap: 16px; }
+        .spinner { width: 48px; height: 48px; border: 5px solid #e0e7ff; border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loadingOverlay p { font-size: 16px; font-weight: bold; color: #4f46e5; }
     </style>
 </head>
 <body>
 
+    <!-- 초기 로딩 오버레이 -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>☁️ Google Sheets에서 데이터 불러오는 중...</p>
+    </div>
+
     <div class="header">
-        <h2>👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부</h2>
+        <div class="header-left">
+            <h2 style="margin:0;">👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부</h2>
+            <span id="syncStatus">⏳ 로딩 중</span>
+        </div>
         <div class="controls">
             <select id="classSelect" onchange="refreshAll()">
                 <option value="1-1">1학년 1반</option>
@@ -296,40 +144,31 @@
         <button id="btnSummary" class="tab-btn"        onclick="switchTab('summary')">🗺️ 기간별 좌석 현황</button>
     </div>
 
-    <!-- 탭 1: 좌석배치도 -->
     <div id="seatingTab">
         <div class="ocr-section">
-            <!-- 왼쪽: 날짜 + 배치 설정 -->
             <div class="ocr-left">
                 <span style="font-weight:bold;">출결 날짜:</span>
                 <input type="date" id="dateSelect" onchange="loadSeatingData()">
-
                 <span style="color:#ccc;">|</span>
-
-                <!-- 수동 배치 설정 -->
                 <div class="layout-box">
                     <span>배치:</span>
-                    <input type="number" id="inputRows" min="1" max="15" value="5" title="행(줄 수)"> 행
+                    <input type="number" id="inputRows" min="1" max="15" value="5"> 행
                     <span style="color:#a5b4fc;">×</span>
-                    <input type="number" id="inputCols" min="1" max="12" value="5" title="열(가로 칸 수)"> 열
+                    <input type="number" id="inputCols" min="1" max="12" value="5"> 열
                     <button class="btn-layout-apply" onclick="applyManualLayout()">적용</button>
                 </div>
                 <span id="layoutBadge" class="layout-badge">📐 5×5 (25석)</span>
             </div>
-
-            <!-- 오른쪽: OCR -->
             <div class="ocr-right">
                 <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="processOCR()">
-                <button class="btn-upload" onclick="document.getElementById('imageUpload').click()">📸 좌석표 사진으로 자동 배치</button>
+                <button class="btn-upload" onclick="document.getElementById('imageUpload').click()">📸 좌석표 사진 자동 배치</button>
                 <span id="loading" style="display:none; color:#10b981; font-weight:bold;">⏳ 인식 중...</span>
             </div>
         </div>
-
         <div class="grid" id="seatingGrid"></div>
         <div class="desk-front">칠 판 (교 탁)</div>
     </div>
 
-    <!-- 탭 2: 명렬표 -->
     <div id="rosterTab">
         <div class="filter-section">
             <div class="filter-controls">
@@ -354,7 +193,6 @@
         </table>
     </div>
 
-    <!-- 탭 3: 기간별 좌석 현황 -->
     <div id="summaryTab">
         <div class="summary-filter-bar">
             <strong>📅 조회 기간:</strong>
@@ -365,67 +203,136 @@
                 <button class="period-btn"           id="periodCustom" onclick="selectPeriod('custom')">날짜 직접 설정</button>
             </div>
             <div class="custom-date-area" id="customDateArea" style="display:none;">
-                <input type="date" id="sumStartDate">
-                <span style="color:#6b7280;">~</span>
-                <input type="date" id="sumEndDate">
+                <input type="date" id="sumStartDate"> ~ <input type="date" id="sumEndDate">
                 <button class="btn-summary-search" onclick="loadSummaryData()">조회</button>
             </div>
         </div>
-
         <div class="period-label" id="periodLabel">📌 전체 기간 누적 기록</div>
         <div class="summary-grid" id="summaryGrid"></div>
         <div class="desk-front">칠 판 (교 탁)</div>
     </div>
 
-    <!-- 팝업 모달 -->
     <div id="actionModal">
         <div class="modal-content">
             <h3 id="modalStudentName">학생 이름</h3>
             <button class="btn-edit" onclick="editStudentName()">✏️ 이름 수정</button>
             <div class="score-row">
-                <button class="btn btn-heart"   onclick="modifyScore('heart', 1)">❤️ 상점 (+1)</button>
-                <button class="btn-small"        onclick="modifyScore('heart', -1)" title="상점 취소">-1</button>
+                <button class="btn btn-heart" onclick="modifyScore('heart', 1)">❤️ 상점 (+1)</button>
+                <button class="btn-small" onclick="modifyScore('heart', -1)">-1</button>
             </div>
             <div class="score-row">
                 <button class="btn btn-warning" onclick="modifyScore('warning', 1)">⚠️ 벌점 (+1)</button>
-                <button class="btn-small"        onclick="modifyScore('warning', -1)" title="벌점 취소">-1</button>
+                <button class="btn-small" onclick="modifyScore('warning', -1)">-1</button>
             </div>
-            <textarea id="studentNote" placeholder="간단한 특기사항 입력 (예: 발표 우수, 조별활동 적극적)"></textarea>
+            <textarea id="studentNote" placeholder="간단한 특기사항 입력"></textarea>
             <button class="btn-save-note" onclick="saveNote()">📝 메모 저장</button>
             <button class="btn-cancel" onclick="closeModal()">닫기</button>
         </div>
     </div>
 
     <script>
+        // ─────────────────────────────────────────────────────────────
+        //  ★ Google Sheets 연동 설정
+        //  apps_script.js 안내대로 배포 후, 아래 URL을 교체하세요
+        // ─────────────────────────────────────────────────────────────
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxh8FDLqerGrZau_tqfTZZSeRbjg6_9crKyoX1nLFKDei82_VBLiGFSypcGFZT_/exec';
+
         // ⚠️ Gemini API 키
         const API_KEY = "AIzaSyChNMoK25t1xYQ0mB3nQHiZLU12zoMa0Ho";
 
         let selectedSeat  = null;
         let currentNames  = [];
-        let currentLayout = { rows: 5, cols: 5 }; // 현재 배치 (학급별로 localStorage에서 읽음)
-
+        let currentLayout = { rows: 5, cols: 5 };
         let summaryPeriodMode = 'all';
 
-        /* 한국 시간 오늘 날짜 */
         const now = new Date();
-        const krTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-                           .toISOString().split('T')[0];
+        const krTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
         document.getElementById('dateSelect').value = krTime;
 
-        /* ══════════════════════════════
-           레이아웃 헬퍼
-        ══════════════════════════════ */
+        // ─────────────────────────────────────────────────────────────
+        //  Google Sheets 동기화 래퍼
+        // ─────────────────────────────────────────────────────────────
+        const sheetsEnabled = () => APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL_HERE';
 
-        /** 현재 학급의 배치(rows, cols)를 localStorage에서 읽어 currentLayout에 반영 */
+        function lsSet(key, valueObj) {
+            const str = JSON.stringify(valueObj);
+            localStorage.setItem(key, str);
+            if (!sheetsEnabled()) return;
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'set', key, value: str })
+            }).catch(() => {});
+        }
+
+        function lsGet(key) {
+            const v = localStorage.getItem(key);
+            try { return v ? JSON.parse(v) : null; } catch { return null; }
+        }
+
+        function lsRemove(key) {
+            localStorage.removeItem(key);
+            if (!sheetsEnabled()) return;
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'delete', key })
+            }).catch(() => {});
+        }
+
+        function lsClearAll() {
+            localStorage.clear();
+            if (!sheetsEnabled()) return;
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'clear' })
+            }).catch(() => {});
+        }
+
+        async function gsLoadAll() {
+            if (!sheetsEnabled()) return false;
+            try {
+                const res = await fetch(`${APPS_SCRIPT_URL}?action=load`);
+                if (!res.ok) throw new Error('응답 오류');
+                const data = await res.json();
+                if (data && !data.error) {
+                    Object.keys(data).forEach(k => {
+                        if (data[k] !== null && data[k] !== '') {
+                            localStorage.setItem(k, data[k]);
+                        }
+                    });
+                    return true;
+                }
+            } catch(e) {
+                console.warn('Google Sheets 로드 실패:', e);
+            }
+            return false;
+        }
+
+        function setSyncStatus(state) {
+            const el = document.getElementById('syncStatus');
+            if (!el) return;
+            const map = {
+                loading: ['⏳ 불러오는 중...', '#4f46e5', '#eef2ff'],
+                ok:      ['☁️ Sheets 연동됨',  '#059669', '#ecfdf5'],
+                local:   ['💾 로컬 저장 중',    '#b45309', '#fffbeb'],
+                nourl:   ['⚙️ URL 미설정',      '#dc2626', '#fef2f2'],
+            };
+            const [text, color, bg] = map[state] || ['', '', ''];
+            el.textContent = text;
+            el.style.color = color;
+            el.style.background = bg;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  앱 기능 함수들
+        // ─────────────────────────────────────────────────────────────
+
         function loadLayout() {
             const cls = document.getElementById('classSelect').value;
-            const saved = localStorage.getItem(`layout_${cls}`);
-            if (saved) {
-                currentLayout = JSON.parse(saved);
-            } else {
-                currentLayout = { rows: 5, cols: 5 };
-            }
-            // 수동 입력 UI도 동기화
+            const saved = lsGet(`layout_${cls}`);
+            currentLayout = saved || { rows: 5, cols: 5 };
             document.getElementById('inputRows').value = currentLayout.rows;
             document.getElementById('inputCols').value = currentLayout.cols;
             updateLayoutBadge();
@@ -434,48 +341,33 @@
         function saveLayout(rows, cols) {
             const cls = document.getElementById('classSelect').value;
             currentLayout = { rows, cols };
-            localStorage.setItem(`layout_${cls}`, JSON.stringify(currentLayout));
+            lsSet(`layout_${cls}`, currentLayout);
             updateLayoutBadge();
         }
 
         function updateLayoutBadge() {
             const { rows, cols } = currentLayout;
-            document.getElementById('layoutBadge').textContent =
-                `📐 ${rows}×${cols} (${rows * cols}석)`;
+            document.getElementById('layoutBadge').textContent = `📐 ${rows}×${cols} (${rows * cols}석)`;
         }
 
-        /** 수동 배치 적용 버튼 */
         function applyManualLayout() {
             const rows = parseInt(document.getElementById('inputRows').value) || 5;
             const cols = parseInt(document.getElementById('inputCols').value) || 5;
-
-            if (rows < 1 || cols < 1) { alert("행과 열은 1 이상이어야 합니다."); return; }
-
+            if (rows < 1 || cols < 1) return;
             const totalSeats = rows * cols;
             const cls = document.getElementById('classSelect').value;
-
-            // 기존 이름 유지 (모자란 만큼 번호로 채움, 넘치면 자름)
-            const existingNames = JSON.parse(localStorage.getItem(`names_${cls}`))
-                                  || Array.from({ length: totalSeats }, (_, i) => `${i+1}번`);
-            const newNames = Array.from({ length: totalSeats }, (_, i) =>
-                existingNames[i] !== undefined ? existingNames[i] : `${i+1}번`
-            );
-
-            localStorage.setItem(`names_${cls}`, JSON.stringify(newNames));
+            const existingNames = lsGet(`names_${cls}`) || [];
+            const newNames = Array.from({ length: totalSeats }, (_, i) => existingNames[i] || `${i+1}번`);
+            lsSet(`names_${cls}`, newNames);
             saveLayout(rows, cols);
             loadSeatingData();
         }
 
-        /* ══════════════════════════════
-           탭 전환
-        ══════════════════════════════ */
         function switchTab(tabName) {
-            document.getElementById('seatingTab').style.display  = 'none';
-            document.getElementById('rosterTab').style.display   = 'none';
-            document.getElementById('summaryTab').style.display  = 'none';
-            ['btnSeat','btnRoster','btnSummary'].forEach(id =>
-                document.getElementById(id).classList.remove('active'));
-
+            document.getElementById('seatingTab').style.display = 'none';
+            document.getElementById('rosterTab').style.display = 'none';
+            document.getElementById('summaryTab').style.display = 'none';
+            ['btnSeat','btnRoster','btnSummary'].forEach(id => document.getElementById(id).classList.remove('active'));
             if (tabName === 'seating') {
                 document.getElementById('seatingTab').style.display = 'block';
                 document.getElementById('btnSeat').classList.add('active');
@@ -493,49 +385,32 @@
 
         function refreshAll() {
             loadSeatingData();
-            if (document.getElementById('rosterTab').style.display  === 'block') loadRosterData();
+            if (document.getElementById('rosterTab').style.display === 'block') loadRosterData();
             if (document.getElementById('summaryTab').style.display === 'block') loadSummaryData();
         }
 
-        /* ══════════════════════════════
-           탭 1: 좌석배치도
-        ══════════════════════════════ */
         function loadSeatingData() {
             loadLayout();
-
             const { rows, cols } = currentLayout;
             const totalSeats = rows * cols;
             const date = document.getElementById('dateSelect').value;
-            const cls  = document.getElementById('classSelect').value;
-
-            currentNames = JSON.parse(localStorage.getItem(`names_${cls}`))
-                           || Array.from({ length: totalSeats }, (_, i) => `${i+1}번`);
-
-            // 이름 배열 길이 보정
+            const cls = document.getElementById('classSelect').value;
+            currentNames = lsGet(`names_${cls}`) || Array.from({ length: totalSeats }, (_, i) => `${i+1}번`);
             while (currentNames.length < totalSeats) currentNames.push(`${currentNames.length+1}번`);
-            if (currentNames.length > totalSeats) currentNames = currentNames.slice(0, totalSeats);
-
-            const savedScores = JSON.parse(localStorage.getItem(`record_${date}_${cls}`)) || {};
+            currentNames = currentNames.slice(0, totalSeats);
+            const savedScores = lsGet(`record_${date}_${cls}`) || {};
             const grid = document.getElementById('seatingGrid');
-
-            // 동적 열 수 적용
             grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
             grid.innerHTML = '';
-
             for (let i = 0; i < totalSeats; i++) {
-                const name   = currentNames[i];
+                const name = currentNames[i];
                 const scores = savedScores[name] || { heart: 0, warning: 0, note: "" };
-
-                // 짝꿍 구분 음영: 짝수 열(0-based) → pair-shade
-                const colIdx   = i % cols;
-                const pairShadeClass = Math.floor(colIdx / 2) % 2 === 1 ? 'pair-shade' : '';
-
+                const colIdx = i % cols;
+                const pairShadeClass = colIdx % 2 === 1 ? 'pair-shade' : '';
                 let scoreHTML = '';
-                if (scores.heart   > 0) scoreHTML += `<span style="color:#c62828;">❤️ ${scores.heart}</span>`;
+                if (scores.heart > 0) scoreHTML += `<span style="color:#c62828;">❤️ ${scores.heart}</span>`;
                 if (scores.warning > 0) scoreHTML += `<span style="color:#ef6c00;">⚠️ ${scores.warning}</span>`;
-                if (scores.note && scores.note.trim())
-                    scoreHTML += `<span style="color:#4b5563;cursor:help;" title="${scores.note}">📝</span>`;
-
+                if (scores.note?.trim()) scoreHTML += `<span style="color:#4b5563;" title="${scores.note}">📝</span>`;
                 grid.innerHTML += `
                     <div class="seat ${pairShadeClass}" onclick="openModal(${i+1}, '${name.replace(/'/g,"\\'")}')">
                         <div class="name">${name}</div>
@@ -546,33 +421,27 @@
 
         function resetTodayClassData() {
             const date = document.getElementById('dateSelect').value;
-            const clsEl  = document.getElementById('classSelect');
-            const cls     = clsEl.value;
-            const clsName = clsEl.options[clsEl.selectedIndex].text;
-            if (confirm(`🧹 [부분 초기화]\n'${date}' 날짜의 '${clsName}' 상벌점 및 메모를 초기화합니다.`)) {
-                localStorage.removeItem(`record_${date}_${cls}`);
-                alert(`${clsName}의 ${date} 기록이 삭제됐습니다.`);
+            const cls = document.getElementById('classSelect').value;
+            if (confirm(`'${date}' 기록을 초기화할까요?`)) {
+                lsRemove(`record_${date}_${cls}`);
                 loadSeatingData();
             }
         }
 
         function resetAllData() {
-            if (confirm("🚨 [전체 초기화]\n모든 학급의 이름·배치·상벌점·메모가 영구 삭제됩니다!\n계속하시겠습니까?")) {
-                localStorage.clear();
-                alert("모든 데이터가 초기화됐습니다.");
+            if (confirm("모든 데이터를 영구 삭제할까요?\n(Google Sheets 데이터도 함께 삭제됩니다)")) {
+                lsClearAll();
                 location.reload();
             }
         }
 
-        /* ─ 모달 ─ */
         function openModal(seatId, name) {
             selectedSeat = seatId;
             document.getElementById('modalStudentName').innerText = name;
             const date = document.getElementById('dateSelect').value;
-            const cls  = document.getElementById('classSelect').value;
-            const savedScores = JSON.parse(localStorage.getItem(`record_${date}_${cls}`)) || {};
-            document.getElementById('studentNote').value =
-                savedScores[name]?.note || '';
+            const cls = document.getElementById('classSelect').value;
+            const savedScores = lsGet(`record_${date}_${cls}`) || {};
+            document.getElementById('studentNote').value = savedScores[name]?.note || '';
             document.getElementById('actionModal').style.display = 'flex';
         }
 
@@ -583,335 +452,168 @@
 
         function saveNote() {
             if (!selectedSeat) return;
-            const studentName = currentNames[selectedSeat - 1];
-            const noteText    = document.getElementById('studentNote').value.trim();
+            const name = currentNames[selectedSeat - 1];
+            const note = document.getElementById('studentNote').value.trim();
             const date = document.getElementById('dateSelect').value;
-            const cls  = document.getElementById('classSelect').value;
-            const scoreKey = `record_${date}_${cls}`;
-            let savedScores = JSON.parse(localStorage.getItem(scoreKey)) || {};
-            if (!savedScores[studentName]) savedScores[studentName] = { heart: 0, warning: 0, note: "" };
-            savedScores[studentName].note = noteText;
-            localStorage.setItem(scoreKey, JSON.stringify(savedScores));
+            const cls = document.getElementById('classSelect').value;
+            const key = `record_${date}_${cls}`;
+            let scores = lsGet(key) || {};
+            if (!scores[name]) scores[name] = { heart: 0, warning: 0, note: "" };
+            scores[name].note = note;
+            lsSet(key, scores);
             loadSeatingData();
             closeModal();
         }
 
         function editStudentName() {
             if (!selectedSeat) return;
-            const currentName = currentNames[selectedSeat - 1];
-            const newName = prompt(`'${currentName}' 학생 이름 수정:`, currentName);
-            if (newName && newName.trim()) {
-                currentNames[selectedSeat - 1] = newName.trim();
-                const cls = document.getElementById('classSelect').value;
-                localStorage.setItem(`names_${cls}`, JSON.stringify(currentNames));
-                document.getElementById('modalStudentName').innerText = newName.trim();
+            const current = currentNames[selectedSeat - 1];
+            const next = prompt(`'${current}' 학생 이름 수정:`, current);
+            if (next?.trim()) {
+                currentNames[selectedSeat - 1] = next.trim();
+                lsSet(`names_${document.getElementById('classSelect').value}`, currentNames);
                 loadSeatingData();
+                closeModal();
             }
         }
 
         function modifyScore(type, amount) {
             if (!selectedSeat) return;
-            const studentName = currentNames[selectedSeat - 1];
+            const name = currentNames[selectedSeat - 1];
             const date = document.getElementById('dateSelect').value;
-            const cls  = document.getElementById('classSelect').value;
-            const scoreKey = `record_${date}_${cls}`;
-            let savedScores = JSON.parse(localStorage.getItem(scoreKey)) || {};
-            if (!savedScores[studentName]) savedScores[studentName] = { heart: 0, warning: 0, note: "" };
-            savedScores[studentName][type] = Math.max(0, savedScores[studentName][type] + amount);
-            localStorage.setItem(scoreKey, JSON.stringify(savedScores));
+            const cls = document.getElementById('classSelect').value;
+            const key = `record_${date}_${cls}`;
+            let scores = lsGet(key) || {};
+            if (!scores[name]) scores[name] = { heart: 0, warning: 0, note: "" };
+            scores[name][type] = Math.max(0, (scores[name][type] || 0) + amount);
+            lsSet(key, scores);
             loadSeatingData();
             closeModal();
         }
 
-        /* ══════════════════════════════
-           탭 2: 명렬표
-        ══════════════════════════════ */
         function loadRosterData() {
             loadLayout();
-            const { rows, cols } = currentLayout;
-            const totalSeats = rows * cols;
             const cls = document.getElementById('classSelect').value;
-            const names = JSON.parse(localStorage.getItem(`names_${cls}`))
-                          || Array.from({ length: totalSeats }, (_, i) => `${i+1}번`);
-
-            const startDate = document.getElementById('startDate').value;
-            const endDate   = document.getElementById('endDate').value;
-
-            let aggregatedData = names.map((name, idx) => ({
-                id: idx + 1, name, heart: 0, warning: 0, notes: []
-            }));
-
+            const names = lsGet(`names_${cls}`) || [];
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            let agg = names.map(name => ({ name, heart: 0, warning: 0, notes: [] }));
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (!key.startsWith('record_') || !key.endsWith(`_${cls}`)) continue;
-                const recordDate = key.split('_')[1];
-                if (startDate && recordDate < startDate) continue;
-                if (endDate   && recordDate > endDate)   continue;
-
-                const dayData = JSON.parse(localStorage.getItem(key));
-                for (const studentName in dayData) {
-                    let obj = aggregatedData.find(s => s.name === studentName);
-                    if (!obj) {
-                        obj = { id: 999, name: studentName, heart: 0, warning: 0, notes: [] };
-                        aggregatedData.push(obj);
-                    }
-                    obj.heart   += dayData[studentName].heart   || 0;
-                    obj.warning += dayData[studentName].warning || 0;
-                    if (dayData[studentName].note?.trim()) {
-                        obj.notes.push(`<strong style="color:#4f46e5;">[${recordDate.substring(5)}]</strong> ${dayData[studentName].note}`);
+                const recDate = key.split('_')[1];
+                if (start && recDate < start) continue;
+                if (end && recDate > end) continue;
+                const dayData = lsGet(key);
+                if (!dayData) continue;
+                for (const name in dayData) {
+                    let obj = agg.find(s => s.name === name);
+                    if (obj) {
+                        obj.heart += dayData[name].heart || 0;
+                        obj.warning += dayData[name].warning || 0;
+                        if (dayData[name].note?.trim()) obj.notes.push(`[${recDate.substring(5)}] ${dayData[name].note}`);
                     }
                 }
             }
-
-            aggregatedData.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR'));
-
             const tbody = document.getElementById('rosterBody');
-            tbody.innerHTML = '';
-            aggregatedData.forEach(student => {
-                const totalScore = student.heart - student.warning;
-                const color = totalScore > 0 ? '#10b981' : totalScore < 0 ? '#ef4444' : '#374151';
-                const notesHtml = student.notes.length
-                    ? student.notes.join('<br>')
-                    : '<span style="color:#ccc;">-</span>';
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:bold;">${student.name}</td>
-                        <td style="color:#c62828;">${student.heart}</td>
-                        <td style="color:#ef6c00;">${student.warning}</td>
-                        <td style="font-weight:bold;color:${color};">${totalScore}</td>
-                        <td class="col-notes">${notesHtml}</td>
-                    </tr>`;
-            });
+            tbody.innerHTML = agg.sort((a,b)=>a.name.localeCompare(b.name)).map(s => {
+                const total = s.heart - s.warning;
+                return `<tr><td style="font-weight:bold;">${s.name}</td><td style="color:#c62828;">${s.heart}</td><td style="color:#ef6c00;">${s.warning}</td><td style="font-weight:bold;">${total}</td><td class="col-notes">${s.notes.join('<br>') || '-'}</td></tr>`;
+            }).join('');
         }
 
         function resetDateFilter() {
             document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value   = '';
+            document.getElementById('endDate').value = '';
             loadRosterData();
         }
 
         function exportToExcel() {
-            const clsEl   = document.getElementById('classSelect');
-            const clsName = clsEl.options[clsEl.selectedIndex].text;
-            const table   = document.getElementById("rosterTable");
-            let csv = "\uFEFF";
-            table.querySelectorAll("tr").forEach(row => {
-                const cols = [];
-                row.querySelectorAll("th, td").forEach(col => cols.push(`"${col.innerText.trim()}"`));
-                csv += cols.join(",") + "\n";
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const table = document.getElementById("rosterTable");
+            let csv = "\uFEFF" + Array.from(table.querySelectorAll("tr")).map(tr =>
+                Array.from(tr.querySelectorAll("th, td")).map(col => `"${col.innerText.trim()}"`).join(",")
+            ).join("\n");
             const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            const today = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
-                              .toISOString().split('T')[0];
-            link.download = `${clsName}_상벌점_${today}.csv`;
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            link.download = `상벌점_${krTime}.csv`;
             link.click();
-            document.body.removeChild(link);
         }
 
-        /* ══════════════════════════════
-           탭 3: 기간별 좌석 현황
-        ══════════════════════════════ */
         function selectPeriod(mode) {
             summaryPeriodMode = mode;
-            ['periodAll','period1w','period1m','periodCustom'].forEach(id =>
-                document.getElementById(id).classList.remove('selected'));
-            document.getElementById('customDateArea').style.display = 'none';
-
-            if (mode === 'custom') {
-                document.getElementById('periodCustom').classList.add('selected');
-                document.getElementById('customDateArea').style.display = 'flex';
-            } else {
-                document.getElementById(
-                    mode === 'all' ? 'periodAll' : mode === '1w' ? 'period1w' : 'period1m'
-                ).classList.add('selected');
-                loadSummaryData();
-            }
-        }
-
-        function getPeriodRange() {
-            const todayStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
-                                 .toISOString().split('T')[0];
-            if (summaryPeriodMode === 'all') return { start: null, end: null };
-            if (summaryPeriodMode === '1w') {
-                const d = new Date(); d.setDate(d.getDate() - 6);
-                return { start: new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0], end: todayStr };
-            }
-            if (summaryPeriodMode === '1m') {
-                const d = new Date(); d.setMonth(d.getMonth() - 1);
-                return { start: new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0], end: todayStr };
-            }
-            return {
-                start: document.getElementById('sumStartDate').value || null,
-                end:   document.getElementById('sumEndDate').value   || null
-            };
+            ['periodAll','period1w','period1m','periodCustom'].forEach(id => document.getElementById(id).classList.remove('selected'));
+            document.getElementById('customDateArea').style.display = mode === 'custom' ? 'flex' : 'none';
+            document.getElementById(mode === 'all' ? 'periodAll' : mode === '1w' ? 'period1w' : mode === '1m' ? 'period1m' : 'periodCustom').classList.add('selected');
+            if (mode !== 'custom') loadSummaryData();
         }
 
         function loadSummaryData() {
             loadLayout();
-            const { rows, cols } = currentLayout;
-            const totalSeats = rows * cols;
             const cls = document.getElementById('classSelect').value;
-            const names = JSON.parse(localStorage.getItem(`names_${cls}`))
-                          || Array.from({ length: totalSeats }, (_, i) => `${i+1}번`);
-
-            const { start, end } = getPeriodRange();
-            document.getElementById('periodLabel').textContent =
-                !start && !end ? '📌 전체 기간 누적 기록'
-                               : `📌 ${start||'시작'} ~ ${end||'오늘'} 누적 기록`;
-
-            const scoreMap = {};
-            names.forEach(n => { scoreMap[n] = { heart: 0, warning: 0 }; });
-
+            const names = lsGet(`names_${cls}`) || [];
+            let scores = {};
+            names.forEach(n => scores[n] = { heart: 0, warning: 0 });
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (!key.startsWith('record_') || !key.endsWith(`_${cls}`)) continue;
-                const recordDate = key.split('_')[1];
-                if (start && recordDate < start) continue;
-                if (end   && recordDate > end)   continue;
-                const dayData = JSON.parse(localStorage.getItem(key));
-                for (const name in dayData) {
-                    if (!scoreMap[name]) scoreMap[name] = { heart: 0, warning: 0 };
-                    scoreMap[name].heart   += dayData[name].heart   || 0;
-                    scoreMap[name].warning += dayData[name].warning || 0;
+                if (key.startsWith('record_') && key.endsWith(`_${cls}`)) {
+                    const data = lsGet(key);
+                    if (data) {
+                        for (const n in data) if (scores[n]) {
+                            scores[n].heart += data[n].heart || 0;
+                            scores[n].warning += data[n].warning || 0;
+                        }
+                    }
                 }
             }
-
             const grid = document.getElementById('summaryGrid');
-            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            grid.innerHTML = '';
-
-            names.slice(0, totalSeats).forEach(name => {
-                const sc  = scoreMap[name] || { heart: 0, warning: 0 };
+            grid.style.gridTemplateColumns = `repeat(${currentLayout.cols}, 1fr)`;
+            grid.innerHTML = names.map(n => {
+                const sc = scores[n];
                 const net = sc.heart - sc.warning;
-                const borderClass = sc.heart > 0 && sc.warning > 0 ? 'has-both'
-                                  : sc.heart   > 0 ? 'has-heart'
-                                  : sc.warning > 0 ? 'has-warning' : '';
-                const netLabel = net > 0 ? `+${net}` : `${net}`;
-                const netClass = net > 0 ? 'positive' : net < 0 ? 'negative' : '';
-
-                grid.innerHTML += `
-                    <div class="summary-seat ${borderClass}">
-                        <div class="s-name">${name}</div>
-                        <div class="summary-score-row">
-                            <span class="s-heart">❤️ ${sc.heart}</span>
-                            <span class="s-warning">⚠️ ${sc.warning}</span>
-                        </div>
-                        <div class="s-net ${netClass}">합계 ${netLabel}점</div>
-                    </div>`;
-            });
+                const border = sc.heart > 0 && sc.warning > 0 ? 'has-both' : sc.heart > 0 ? 'has-heart' : sc.warning > 0 ? 'has-warning' : '';
+                return `<div class="summary-seat ${border}"><div class="s-name">${n}</div><div class="summary-score-row"><span class="s-heart">❤️ ${sc.heart}</span><span class="s-warning">⚠️ ${sc.warning}</span></div><div>합계 ${net}점</div></div>`;
+            }).join('');
         }
 
-        /* ══════════════════════════════
-           OCR (Gemini)
-        ══════════════════════════════ */
         async function processOCR() {
-            if (API_KEY.includes("---") || !API_KEY.trim()) {
-                alert("코드 상단의 API_KEY 변수에 실제 Gemini API 키를 입력해주세요.");
+            const file = document.getElementById('imageUpload').files[0];
+            if (!file) return;
+            document.getElementById('loading').style.display = 'inline-block';
+            try {
+                const base64 = await new Promise(res => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.readAsDataURL(file); });
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "이미지의 좌석 배치를 2차원 JSON 배열로 이름만 추출하세요. 빈칸은 ''." }, { inline_data: { mime_type: file.type, data: base64 } }] }], generationConfig: { responseMimeType: "application/json" } })
+                });
+                const data = await res.json();
+                const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+                const rows = parsed.length, cols = Math.max(...parsed.map(r => r.length));
+                const flat = parsed.flat().map((n, i) => n.trim() || `${i+1}번`);
+                lsSet(`names_${document.getElementById('classSelect').value}`, flat);
+                saveLayout(rows, cols);
+                loadSeatingData();
+                alert(`인식 완료: ${rows}행 x ${cols}열`);
+            } catch (e) { alert("오류: " + e.message); } finally { document.getElementById('loading').style.display = 'none'; }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  앱 초기화 (Google Sheets에서 먼저 로드)
+        // ─────────────────────────────────────────────────────────────
+        async function init() {
+            setSyncStatus('loading');
+            if (!sheetsEnabled()) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                setSyncStatus('nourl');
+                loadSeatingData();
                 return;
             }
-            const fileInput  = document.getElementById('imageUpload');
-            const loadingMsg = document.getElementById('loading');
-            if (!fileInput.files[0]) return;
-            loadingMsg.style.display = 'inline-block';
-
-            try {
-                const base64Image = await new Promise(resolve => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                    reader.readAsDataURL(fileInput.files[0]);
-                });
-
-                const ocrPrompt = `당신은 교실 좌석 배치표 이미지를 분석하는 전문가입니다.
-아래 규칙을 반드시 지켜서 JSON만 출력하세요.
-
-[규칙]
-1. 이미지에 보이는 좌석 배치의 행(row)과 열(column) 구조를 그대로 유지합니다.
-2. 결과는 "2차원 배열"로 반환합니다. 바깥 배열의 각 원소가 하나의 '행(row)'이고, 그 안의 배열이 해당 행의 '열(column)' 칸입니다.
-3. 학생 이름이 적힌 칸은 해당 이름 문자열을 넣습니다.
-4. 이름이 없거나 비어 있는 칸은 반드시 빈 문자열 ""을 넣어 위치를 유지합니다.
-5. 이미지를 회전하거나 순서를 재배열하지 마세요. 보이는 그대로 읽습니다.
-6. 이름 외에 번호·특수문자는 제거하고 이름만 남깁니다.
-7. 출력은 JSON 2차원 배열만 합니다. 설명, 마크다운, 다른 텍스트는 절대 포함하지 마세요.
-
-[출력 예시]
-[
-  ["김민준", "이서연", "박지호", "최수아", "정우진", "한예슬"],
-  ["오태양", "윤하늘", "임지수", "강동원", "신유나", "백승호"],
-  ["문채원", "서준혁", "김다인", "이현우", "",       "장서희"],
-  ["류민아", "박태준", "최하늘", "정다은", "윤서준", "임채린"]
-]`;
-
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    { text: ocrPrompt },
-                                    { inline_data: { mime_type: fileInput.files[0].type, data: base64Image } }
-                                ]
-                            }],
-                            generationConfig: { responseMimeType: "application/json" }
-                        })
-                    }
-                );
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(`API 오류 (${response.status}): ${err.error?.message || "알 수 없는 오류"}`);
-                }
-
-                const data    = await response.json();
-                const rawText = data.candidates[0].content.parts[0].text;
-                const parsed  = JSON.parse(rawText); // 2차원 배열
-
-                // ── 실제 행·열 크기 추출 ──────────────────────
-                const detectedRows = parsed.length;
-                const detectedCols = Math.max(...parsed.map(r => r.length));
-
-                // 이름 1차원화 (빈 자리는 번호 표시)
-                const flatNames = [];
-                for (let r = 0; r < detectedRows; r++) {
-                    for (let c = 0; c < detectedCols; c++) {
-                        const cell = parsed[r]?.[c];
-                        flatNames.push((typeof cell === 'string' && cell.trim()) ? cell.trim()
-                                                                                 : `${flatNames.length + 1}번`);
-                    }
-                }
-
-                const cls = document.getElementById('classSelect').value;
-                localStorage.setItem(`names_${cls}`,   JSON.stringify(flatNames));
-
-                // ── 배치 저장 (OCR 결과 기반) ─────────────────
-                saveLayout(detectedRows, detectedCols);
-                document.getElementById('inputRows').value = detectedRows;
-                document.getElementById('inputCols').value = detectedCols;
-
-                // 미리보기
-                let preview = '';
-                for (let r = 0; r < detectedRows; r++) {
-                    preview += flatNames.slice(r * detectedCols, (r+1) * detectedCols).join(' | ') + '\n';
-                }
-                alert(`✅ 좌석표 인식 완료!\n\n[인식된 배치: ${detectedRows}행 × ${detectedCols}열 = ${flatNames.length}석]\n\n${preview}\n다르면 수동으로 이름을 수정해주세요.`);
-                loadSeatingData();
-
-            } catch (error) {
-                alert("인식 중 오류가 발생했습니다.\n\n" + error.message);
-                console.error(error);
-            } finally {
-                loadingMsg.style.display = 'none';
-                fileInput.value = '';
-            }
+            const ok = await gsLoadAll();
+            document.getElementById('loadingOverlay').style.display = 'none';
+            setSyncStatus(ok ? 'ok' : 'local');
+            loadSeatingData();
         }
 
-        // ── 초기 로드 ───────────────────────────────────
-        loadSeatingData();
+        init();
     </script>
 </body>
 </html>
