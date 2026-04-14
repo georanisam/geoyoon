@@ -109,7 +109,6 @@
 </head>
 <body>
 
-    <!-- 초기 로딩 오버레이 -->
     <div id="loadingOverlay">
         <div class="spinner"></div>
         <p>☁️ Google Sheets에서 데이터 불러오는 중...</p>
@@ -236,8 +235,6 @@
         //  apps_script.js 안내대로 배포 후, 아래 URL을 교체하세요
         // ─────────────────────────────────────────────────────────────
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxh8FDLqerGrZau_tqfTZZSeRbjg6_9crKyoX1nLFKDei82_VBLiGFSypcGFZT_/exec';
-
-
 
         let selectedSeat  = null;
         let currentNames  = [];
@@ -600,19 +597,33 @@
             r.readAsDataURL(file); 
         });
         
-        // 3. 구글 Gemini API 호출 (3.1 Flash Lite 모델)
-         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
+        // 전송할 데이터 세팅
+        const reqBody = JSON.stringify({ 
+            contents: [{ parts: [{ text: "이미지의 좌석 배치를 2차원 JSON 배열로 이름만 추출하세요. 빈칸은 ''." }, { inline_data: { mime_type: file.type, data: base64 } }] }], 
+            generationConfig: { responseMimeType: "application/json" } 
+        });
+
+        // 3. 구글 Gemini API 호출 (허용량이 가장 넉넉한 3.1 Flash Lite 우선 사용!)
+        let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`, {
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                contents: [{ parts: [{ text: "이미지의 좌석 배치를 2차원 JSON 배열로 이름만 추출하세요. 빈칸은 ''." }, { inline_data: { mime_type: file.type, data: base64 } }] }], 
-                generationConfig: { responseMimeType: "application/json" } 
-            })
+            body: reqBody
         });
         
-        const data = await res.json();
+        let data = await res.json();
         
-        // 4. 에러 및 예외 처리
+        // 4. 무적 방어 로직: 3.1 서버가 과부하(High demand)로 터졌다면? -> 2.5 Flash로 자동 우회!
+        if (data.error && (data.error.code === 503 || data.error.message.toLowerCase().includes("high demand"))) {
+            console.log("☁️ 3.1 서버 일시적 과부하 발생. 2.5 Flash로 즉시 우회합니다.");
+            res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: reqBody
+            });
+            data = await res.json();
+        }
+        
+        // 5. 에러 및 예외 처리
         if (data.error) {
             // 키가 잘못되었거나 만료/정지된 경우 저장된 키를 지우고 다시 입력받도록 유도
             if (data.error.code === 400 || data.error.code === 403) {
@@ -625,7 +636,7 @@
             throw new Error('AI가 응답을 생성하지 못했습니다. (이미지 인식 실패)');
         }
 
-        // 5. 완벽한 1:1 매칭을 위한 좌석 배열 추출 및 빈칸 유지 로직
+        // 6. 완벽한 1:1 매칭을 위한 좌석 배열 추출 및 빈칸 유지 로직
         const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
         const rows = parsed.length;
         const cols = Math.max(...parsed.map(r => r.length));
@@ -639,7 +650,7 @@
             }
         }
         
-        // 6. 데이터 저장 및 화면 갱신
+        // 7. 데이터 저장 및 화면 갱신
         lsSet(`names_${document.getElementById('classSelect').value}`, flat);
         saveLayout(rows, cols);
         loadSeatingData();
