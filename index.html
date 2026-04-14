@@ -116,7 +116,7 @@
 
     <div class="header">
         <div class="header-left">
-            <h2 style="margin:0;">👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부</h2>
+            <h2 style="margin:0;">👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부 (0414)</h2>
             <span id="syncStatus">⏳ 로딩 중</span>
         </div>
         <div class="controls">
@@ -232,7 +232,6 @@
     <script>
         // ─────────────────────────────────────────────────────────────
         //  ★ Google Sheets 연동 설정
-        //  apps_script.js 안내대로 배포 후, 아래 URL을 교체하세요
         // ─────────────────────────────────────────────────────────────
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxh8FDLqerGrZau_tqfTZZSeRbjg6_9crKyoX1nLFKDei82_VBLiGFSypcGFZT_/exec';
 
@@ -571,106 +570,162 @@
             }).join('');
         }
 
-   async function processOCR() {
-    const file = document.getElementById('imageUpload').files[0];
-    if (!file) return;
+        // ─────────────────────────────────────────────────────────────
+        //  ★ OCR 함수 - 3단계 자동 폴백 체인 (수정됨)
+        //
+        //  우선순위: gemini-3.1-flash-lite-preview
+        //         → gemini-2.5-flash
+        //         → gemini-2.0-flash
+        //
+        //  각 모델이 "high demand" / 503 / 429 오류를 반환하면
+        //  다음 모델로 자동으로 넘어갑니다.
+        // ─────────────────────────────────────────────────────────────
 
-    // 1. 브라우저 저장소에서 API 키 확인 및 입력받기
-    let apiKey = localStorage.getItem('GEMINI_API_KEY');
-    if (!apiKey) {
-        apiKey = prompt("보안을 위해 새로 발급받은 Gemini API 키를 입력해주세요.\n(선생님의 기기에만 안전하게 저장됩니다.)");
-        if (!apiKey) {
-            alert("API 키가 입력되지 않아 사진 인식을 취소합니다.");
-            document.getElementById('imageUpload').value = ''; // 파일 선택 초기화
-            return;
+        // 폴백 순서대로 나열된 모델 목록
+        const GEMINI_MODELS = [
+            'gemini-3.1-flash-lite-preview',   // 1순위 (사용량 한도 가장 넉넉)
+            'gemini-2.5-flash',                 // 2순위 폴백
+            'gemini-2.0-flash',                 // 3순위 폴백
+        ];
+
+        // 특정 에러 코드·메시지가 "일시적 과부하"인지 판단하는 헬퍼
+        function isOverloaded(data) {
+            if (!data || !data.error) return false;
+            const code = data.error.code;
+            const msg  = (data.error.message || '').toLowerCase();
+            return code === 503 || code === 429
+                || msg.includes('high demand')
+                || msg.includes('overloaded')
+                || msg.includes('quota')
+                || msg.includes('resource_exhausted');
         }
-        localStorage.setItem('GEMINI_API_KEY', apiKey.trim());
-    }
 
-    document.getElementById('loading').style.display = 'inline-block';
-    
-    try {
-        // 2. 이미지를 Base64로 변환
-        const base64 = await new Promise(res => { 
-            const r = new FileReader(); 
-            r.onloadend = () => res(r.result.split(',')[1]); 
-            r.readAsDataURL(file); 
-        });
-        
-        // 전송할 데이터 세팅
-        const reqBody = JSON.stringify({ 
-            contents: [{ parts: [{ text: "이미지의 좌석 배치를 2차원 JSON 배열로 이름만 추출하세요. 빈칸은 ''." }, { inline_data: { mime_type: file.type, data: base64 } }] }], 
-            generationConfig: { responseMimeType: "application/json" } 
-        });
+        // API 키가 잘못됐거나 권한이 없는 경우 판단
+        function isAuthError(data) {
+            if (!data || !data.error) return false;
+            const code = data.error.code;
+            return code === 400 || code === 401 || code === 403;
+        }
 
-        // 3. 구글 Gemini API 호출 (허용량이 가장 넉넉한 3.1 Flash Lite 우선 사용!)
-        let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`, {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' },
-            body: reqBody
-        });
-        
-        let data = await res.json();
-        
-        // 4. 무적 방어 로직: 3.1 서버가 과부하(High demand)로 터졌다면? -> 2.5 Flash로 자동 우회!
-        if (data.error && (data.error.code === 503 || data.error.message.toLowerCase().includes("high demand"))) {
-            console.log("☁️ 3.1 서버 일시적 과부하 발생. 2.5 Flash로 즉시 우회합니다.");
-            res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST', 
+        // 단일 모델에 Gemini API 호출 후 결과 반환 (에러 포함)
+        async function callGemini(modelName, apiKey, reqBody) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            const res  = await fetch(url, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: reqBody
             });
-            data = await res.json();
-        }
-        
-        // 5. 에러 및 예외 처리
-        if (data.error) {
-            // 키가 잘못되었거나 만료/정지된 경우 저장된 키를 지우고 다시 입력받도록 유도
-            if (data.error.code === 400 || data.error.code === 403) {
-                localStorage.removeItem('GEMINI_API_KEY');
-                throw new Error(`API 키가 잘못되었거나 권한이 없습니다. 다시 업로드하여 새 키를 입력해주세요.\n(${data.error.message})`);
-            }
-            throw new Error(`[API 에러] ${data.error.message}`);
-        }
-        if (!data.candidates || data.candidates.length === 0) {
-            throw new Error('AI가 응답을 생성하지 못했습니다. (이미지 인식 실패)');
+            return await res.json();
         }
 
-        // 6. 완벽한 1:1 매칭을 위한 좌석 배열 추출 및 빈칸 유지 로직
-        const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
-        const rows = parsed.length;
-        const cols = Math.max(...parsed.map(r => r.length));
-        
-        const flat = [];
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < cols; j++) {
-                // 해당 자리에 이름이 있으면 넣고, 없거나 빈칸이면 빈 문자열("") 유지 (밀림 방지)
-                const name = parsed[i] && parsed[i][j] ? parsed[i][j].trim() : "";
-                flat.push(name);
+        async function processOCR() {
+            const file = document.getElementById('imageUpload').files[0];
+            if (!file) return;
+
+            // API 키 확인 및 입력받기
+            let apiKey = localStorage.getItem('GEMINI_API_KEY');
+            if (!apiKey) {
+                apiKey = prompt("보안을 위해 Gemini API 키를 입력해주세요.\n(선생님의 기기에만 안전하게 저장됩니다.)");
+                if (!apiKey) {
+                    alert("API 키가 입력되지 않아 사진 인식을 취소합니다.");
+                    document.getElementById('imageUpload').value = '';
+                    return;
+                }
+                localStorage.setItem('GEMINI_API_KEY', apiKey.trim());
+            }
+
+            document.getElementById('loading').style.display = 'inline-block';
+
+            try {
+                // 이미지를 Base64로 변환
+                const base64 = await new Promise(res => {
+                    const r = new FileReader();
+                    r.onloadend = () => res(r.result.split(',')[1]);
+                    r.readAsDataURL(file);
+                });
+
+                const reqBody = JSON.stringify({
+                    contents: [{ parts: [
+                        { text: "이미지의 좌석 배치를 2차원 JSON 배열로 이름만 추출하세요. 빈칸은 ''." },
+                        { inline_data: { mime_type: file.type, data: base64 } }
+                    ]}],
+                    generationConfig: { responseMimeType: "application/json" }
+                });
+
+                // ── 핵심: 3단계 폴백 체인 ──────────────────────────────
+                let data = null;
+                let usedModel = '';
+
+                for (const model of GEMINI_MODELS) {
+                    console.log(`🔄 시도 중: ${model}`);
+                    data = await callGemini(model, apiKey, reqBody);
+
+                    if (isAuthError(data)) {
+                        // 키 문제 → 저장 삭제 후 즉시 중단 (다른 모델도 동일하게 실패)
+                        localStorage.removeItem('GEMINI_API_KEY');
+                        throw new Error(`API 키가 잘못되었거나 권한이 없습니다. 다시 업로드하여 새 키를 입력해주세요.\n(${data.error.message})`);
+                    }
+
+                    if (isOverloaded(data)) {
+                        // 과부하 → 다음 모델 시도
+                        console.warn(`⚠️ ${model} 과부하. 다음 모델로 전환...`);
+                        continue;
+                    }
+
+                    if (data.error) {
+                        // 그 외 에러 → 즉시 중단
+                        throw new Error(`[API 에러 - ${model}] ${data.error.message}`);
+                    }
+
+                    // 정상 응답 수신
+                    usedModel = model;
+                    break;
+                }
+
+                // 모든 모델이 실패한 경우
+                if (!usedModel) {
+                    throw new Error('모든 Gemini 모델이 현재 과부하 상태입니다.\n잠시 후 다시 시도해 주세요.\n(gemini-3.1-flash-lite-preview / 2.5-flash / 2.0-flash 모두 실패)');
+                }
+                // ───────────────────────────────────────────────────────
+
+                if (!data.candidates || data.candidates.length === 0) {
+                    throw new Error('AI가 응답을 생성하지 못했습니다. (이미지 인식 실패)');
+                }
+
+                console.log(`✅ 인식 성공 (모델: ${usedModel})`);
+
+                // 좌석 배열 추출 및 빈칸 유지 로직
+                const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
+                const rows = parsed.length;
+                const cols = Math.max(...parsed.map(r => r.length));
+
+                const flat = [];
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const name = parsed[i] && parsed[i][j] ? parsed[i][j].trim() : "";
+                        flat.push(name);
+                    }
+                }
+
+                lsSet(`names_${document.getElementById('classSelect').value}`, flat);
+                saveLayout(rows, cols);
+                loadSeatingData();
+                alert(`✅ 인식 완료: ${rows}행 x ${cols}열\n(사용 모델: ${usedModel})`);
+
+            } catch (e) {
+                alert("오류가 발생했습니다:\n" + e.message);
+                console.error(e);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('imageUpload').value = '';
             }
         }
-        
-        // 7. 데이터 저장 및 화면 갱신
-        lsSet(`names_${document.getElementById('classSelect').value}`, flat);
-        saveLayout(rows, cols);
-        loadSeatingData();
-        alert(`인식 완료: ${rows}행 x ${cols}열`);
-        
-    } catch (e) { 
-        alert("오류가 발생했습니다: \n" + e.message); 
-        console.error(e);
-    } finally { 
-        document.getElementById('loading').style.display = 'none'; 
-        document.getElementById('imageUpload').value = ''; // 다음 사진을 위해 인풋 초기화
-    }
-}
 
-// (선택 사항) 나중에 API 키를 교체하고 싶을 때 실행할 수 있는 함수
-// 웹앱 어딘가에 초기화 버튼을 만들고 싶으시면 이 함수를 연결해 두시면 됩니다.
-function resetApiKey() {
-    localStorage.removeItem('GEMINI_API_KEY');
-    alert("저장된 API 키가 삭제되었습니다. 다음 업로드 시 키를 다시 입력하는 창이 뜹니다.");
-}
+        // API 키를 교체하고 싶을 때 사용
+        function resetApiKey() {
+            localStorage.removeItem('GEMINI_API_KEY');
+            alert("저장된 API 키가 삭제되었습니다. 다음 업로드 시 키를 다시 입력하는 창이 뜹니다.");
+        }
 
         // ─────────────────────────────────────────────────────────────
         //  앱 초기화 (Google Sheets에서 먼저 로드)
