@@ -116,7 +116,7 @@
 
     <div class="header">
         <div class="header-left">
-            <h2 style="margin:0;">👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부 (0414)</h2>
+            <h2 style="margin:0;">👨‍🏫 [혜란샘의 사회🌐] 스마트 수업 기록부 (0414ver)</h2>
             <span id="syncStatus">⏳ 로딩 중</span>
         </div>
         <div class="controls">
@@ -588,19 +588,36 @@
             'gemini-2.0-flash',                 // 3순위 폴백
         ];
 
-        // 특정 에러 코드·메시지가 "일시적 과부하"인지 판단하는 헬퍼
-        function isOverloaded(data) {
+        // ── 오류 유형 정밀 분류 ──────────────────────────────────────
+        // 1) 모델 일시 과부하 → 다음 모델로 시도 (503, "high demand", "overloaded")
+        function isModelOverloaded(data) {
             if (!data || !data.error) return false;
             const code = data.error.code;
             const msg  = (data.error.message || '').toLowerCase();
-            return code === 503 || code === 429
+            return code === 503
                 || msg.includes('high demand')
-                || msg.includes('overloaded')
-                || msg.includes('quota')
-                || msg.includes('resource_exhausted');
+                || msg.includes('overloaded');
         }
 
-        // API 키가 잘못됐거나 권한이 없는 경우 판단
+        // 2) API 키 할당량 소진 → 모델 바꿔도 소용없음, 즉시 중단 (429, resource_exhausted)
+        function isQuotaExhausted(data) {
+            if (!data || !data.error) return false;
+            const code = data.error.code;
+            const msg  = (data.error.message || '').toLowerCase();
+            return code === 429
+                || msg.includes('quota')
+                || msg.includes('resource_exhausted')
+                || msg.includes('rate limit')
+                || msg.includes('too many requests');
+        }
+
+        // 3) 모델이 존재하지 않음 (404) → 다음 모델로 시도
+        function isModelNotFound(data) {
+            if (!data || !data.error) return false;
+            return data.error.code === 404;
+        }
+
+        // 4) 인증/권한 오류 → API 키 문제, 즉시 중단
         function isAuthError(data) {
             if (!data || !data.error) return false;
             const code = data.error.code;
@@ -652,7 +669,7 @@
                     generationConfig: { responseMimeType: "application/json" }
                 });
 
-                // ── 핵심: 3단계 폴백 체인 ──────────────────────────────
+                // ── 핵심: 3단계 폴백 체인 (오류 유형 정밀 분류) ────────
                 let data = null;
                 let usedModel = '';
 
@@ -660,31 +677,43 @@
                     console.log(`🔄 시도 중: ${model}`);
                     data = await callGemini(model, apiKey, reqBody);
 
+                    // ① 인증/키 오류 → 키 삭제 후 즉시 중단
                     if (isAuthError(data)) {
-                        // 키 문제 → 저장 삭제 후 즉시 중단 (다른 모델도 동일하게 실패)
                         localStorage.removeItem('GEMINI_API_KEY');
-                        throw new Error(`API 키가 잘못되었거나 권한이 없습니다. 다시 업로드하여 새 키를 입력해주세요.\n(${data.error.message})`);
+                        throw new Error(`API 키가 잘못되었거나 권한이 없습니다.\n다시 업로드하여 새 키를 입력해주세요.\n(오류: ${data.error.message})`);
                     }
 
-                    if (isOverloaded(data)) {
-                        // 과부하 → 다음 모델 시도
-                        console.warn(`⚠️ ${model} 과부하. 다음 모델로 전환...`);
+                    // ② 일일 할당량 소진 → 모델 바꿔도 소용없음, 즉시 중단
+                    if (isQuotaExhausted(data)) {
+                        throw new Error(
+                            '📛 오늘의 Gemini 무료 API 호출 한도가 모두 소진되었습니다.\n\n' +
+                            '✅ 해결 방법:\n' +
+                            '1) 내일 다시 시도하거나 (매일 자정 초기화)\n' +
+                            '2) Google AI Studio에서 유료 플랜으로 업그레이드하거나\n' +
+                            '3) 새로운 구글 계정으로 API 키를 새로 발급받으세요.\n\n' +
+                            '(aistudio.google.com → Get API key)'
+                        );
+                    }
+
+                    // ③ 모델 일시 과부하 or 모델명 없음 → 다음 모델 시도
+                    if (isModelOverloaded(data) || isModelNotFound(data)) {
+                        console.warn(`⚠️ ${model} ${isModelNotFound(data) ? '모델 없음' : '과부하'}. 다음 모델로 전환...`);
                         continue;
                     }
 
+                    // ④ 그 외 알 수 없는 에러 → 즉시 중단
                     if (data.error) {
-                        // 그 외 에러 → 즉시 중단
                         throw new Error(`[API 에러 - ${model}] ${data.error.message}`);
                     }
 
-                    // 정상 응답 수신
+                    // ✅ 정상 응답
                     usedModel = model;
                     break;
                 }
 
-                // 모든 모델이 실패한 경우
+                // 모든 모델이 일시 과부하 / 모델명 오류로 실패한 경우
                 if (!usedModel) {
-                    throw new Error('모든 Gemini 모델이 현재 과부하 상태입니다.\n잠시 후 다시 시도해 주세요.\n(gemini-3.1-flash-lite-preview / 2.5-flash / 2.0-flash 모두 실패)');
+                    throw new Error('모든 Gemini 모델 서버가 일시적으로 혼잡합니다.\n1~2분 후 다시 시도해 주세요.');
                 }
                 // ───────────────────────────────────────────────────────
 
