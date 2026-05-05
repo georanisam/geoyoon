@@ -542,33 +542,89 @@
             if (mode !== 'custom') loadSummaryData();
         }
 
-        function loadSummaryData() {
-            loadLayout();
-            const cls = document.getElementById('classSelect').value;
-            const names = lsGet(`names_${cls}`) || [];
-            let scores = {};
-            names.forEach(n => scores[n] = { heart: 0, warning: 0 });
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('record_') && key.endsWith(`_${cls}`)) {
-                    const data = lsGet(key);
-                    if (data) {
-                        for (const n in data) if (scores[n]) {
-                            scores[n].heart += data[n].heart || 0;
-                            scores[n].warning += data[n].warning || 0;
-                        }
-                    }
-                }
-            }
-            const grid = document.getElementById('summaryGrid');
-            grid.style.gridTemplateColumns = `repeat(${currentLayout.cols}, 1fr)`;
-            grid.innerHTML = names.map(n => {
-                const sc = scores[n];
-                const net = sc.heart - sc.warning;
-                const border = sc.heart > 0 && sc.warning > 0 ? 'has-both' : sc.heart > 0 ? 'has-heart' : sc.warning > 0 ? 'has-warning' : '';
-                return `<div class="summary-seat ${border}"><div class="s-name">${n}</div><div class="summary-score-row"><span class="s-heart">❤️ ${sc.heart}</span><span class="s-warning">⚠️ ${sc.warning}</span></div><div>합계 ${net}점</div></div>`;
-            }).join('');
+function loadSummaryData() {
+    loadLayout();
+    const cls = document.getElementById('classSelect').value;
+    const names = lsGet(`names_${cls}`) || [];
+
+    // ── 기간 계산 ──────────────────────────────────────────
+    const today = krTime;
+    let filterStart = null;
+    let filterEnd   = null;
+
+    if (summaryPeriodMode === '1w') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 6);
+        filterStart = d.toISOString().split('T')[0];
+        filterEnd   = today;
+        document.getElementById('periodLabel').textContent = `📌 최근 1주일 (${filterStart} ~ ${filterEnd})`;
+    } else if (summaryPeriodMode === '1m') {
+        const d = new Date(today);
+        d.setMonth(d.getMonth() - 1);
+        filterStart = d.toISOString().split('T')[0];
+        filterEnd   = today;
+        document.getElementById('periodLabel').textContent = `📌 최근 1개월 (${filterStart} ~ ${filterEnd})`;
+    } else if (summaryPeriodMode === 'custom') {
+        filterStart = document.getElementById('sumStartDate').value;
+        filterEnd   = document.getElementById('sumEndDate').value;
+
+        // ── 역순 날짜 유효성 검사 ──────────────────────────
+        if (!filterStart || !filterEnd) {
+            alert('시작일과 종료일을 모두 입력해주세요.');
+            return;
         }
+        if (filterStart > filterEnd) {
+            alert(`날짜 오류: 시작일(${filterStart})이 종료일(${filterEnd})보다 늦습니다.\n날짜를 다시 확인해주세요.`);
+            return;
+        }
+        document.getElementById('periodLabel').textContent = `📌 설정 기간 (${filterStart} ~ ${filterEnd})`;
+    } else {
+        // 전체 기간
+        document.getElementById('periodLabel').textContent = `📌 전체 기간 누적 기록`;
+    }
+    // ────────────────────────────────────────────────────────
+
+    let scores = {};
+    names.forEach(n => scores[n] = { heart: 0, warning: 0 });
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key.startsWith('record_') || !key.endsWith(`_${cls}`)) continue;
+
+        // ── 날짜 필터 적용 ─────────────────────────────────
+        const recDate = key.replace('record_', '').replace(`_${cls}`, '');
+        if (filterStart && recDate < filterStart) continue;
+        if (filterEnd   && recDate > filterEnd)   continue;
+        // ────────────────────────────────────────────────────
+
+        const data = lsGet(key);
+        if (!data) continue;
+        for (const n in data) {
+            if (scores[n]) {
+                scores[n].heart   += data[n].heart   || 0;
+                scores[n].warning += data[n].warning || 0;
+            }
+        }
+    }
+
+    const grid = document.getElementById('summaryGrid');
+    grid.style.gridTemplateColumns = `repeat(${currentLayout.cols}, 1fr)`;
+    grid.innerHTML = names.map(n => {
+        const sc  = scores[n];
+        const net = sc.heart - sc.warning;
+        const border = sc.heart > 0 && sc.warning > 0 ? 'has-both'
+                     : sc.heart   > 0                  ? 'has-heart'
+                     : sc.warning > 0                  ? 'has-warning' : '';
+        return `<div class="summary-seat ${border}">
+            <div class="s-name">${n}</div>
+            <div class="summary-score-row">
+                <span class="s-heart">❤️ ${sc.heart}</span>
+                <span class="s-warning">⚠️ ${sc.warning}</span>
+            </div>
+            <div>합계 ${net}점</div>
+        </div>`;
+    }).join('');
+}
 
         // ─────────────────────────────────────────────────────────────
         //  ★ OCR 함수 - 3단계 자동 폴백 체인 (수정됨)
